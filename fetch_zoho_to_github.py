@@ -8,7 +8,7 @@ CLIENT_ID = os.getenv("ZOHO_CLIENT_ID")
 CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
 REFRESH_TOKEN = os.getenv("ZOHO_REFRESH_TOKEN")
 REPO_PATH = "zoho_backup"
-GITHUB_REPO = "https://github.com/YOUR_USERNAME/YOUR_REPO.git"  # ← Change this!
+GITHUB_REPO = "https://github.com/Sasi-Git-Creator/Zoho-CRM.git"  # ← Change this!
 
 def get_access_token():
     url = "https://accounts.zoho.com/oauth/v2/token"
