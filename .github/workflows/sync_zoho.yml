@@ -9,12 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main        # Explicitly specify the branch
+          fetch-depth: 0   # Get complete commit history
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
+
       - name: Install dependencies
         run: pip install requests gitpython
+
       - name: Run Sync
         env:
           ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
