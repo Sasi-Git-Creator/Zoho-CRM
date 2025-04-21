@@ -10,8 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main        # Explicitly specify the branch
-          fetch-depth: 0   # Get complete commit history
+          ref: main           # Explicit branch specification
+          fetch-depth: 0      # Full clone (not shallow)
 
       - name: Set up Python
         uses: actions/setup-python@v4
