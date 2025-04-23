@@ -10,6 +10,7 @@ REFRESH_TOKEN = os.getenv("ZOHO_REFRESH_TOKEN")
 REPO_PATH = "zoho_backup"
 GITHUB_REPO = "https://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@github.com/Sasi-Git-Creator/Zoho-CRM"
 
+# Function to get the access token using the refresh token
 def get_access_token():
     url = "https://accounts.zoho.in/oauth/v2/token"
     data = {
@@ -19,42 +20,36 @@ def get_access_token():
         "grant_type": "refresh_token"
     }
     response = requests.post(url, data=data)
-    print("Access token response:", response.json())
     return response.json()["access_token"]
 
-def fetch_zoho_functions(access_token):
-    url = "https://www.zohoapis.com/crm/v2/functions"
+# Function to fetch Zoho CRM data (Leads in this case)
+def fetch_zoho_data(access_token):
+    url = "https://www.zohoapis.com/crm/v2/Leads"  # You can change this to any module like Deals, Contacts, etc.
     headers = {"Authorization": f"Zoho-oauthtoken {access_token}"}
     response = requests.get(url, headers=headers)
-    print("Functions response:", response.json())
     return response.json().get("data", [])
 
+# Function to backup data to GitHub repository
 def backup_to_github():
-    try:
-        access_token = get_access_token()
-        functions = fetch_zoho_functions(access_token)
+    access_token = get_access_token()  # Get access token
+    data = fetch_zoho_data(access_token)  # Fetch Zoho CRM data (Leads)
+    
+    # Clone the GitHub repository (backup folder)
+    repo = Repo.clone_from(GITHUB_REPO, REPO_PATH, branch="main")
+    
+    # Loop through the fetched records and save them as JSON files in the repo
+    for record in data:
+        with open(f"{REPO_PATH}/{record['id']}.json", "w") as f:
+            f.write(str(record))
+    
+    # Add all the changes and commit
+    repo.git.add(A=True)
+    repo.index.commit(f"Auto-update: {datetime.now()}")
+    
+    # Push changes to GitHub
+    origin = repo.remote(name="origin")
+    origin.push()
 
-        if not functions:
-            print("No functions found in Zoho CRM.")
-            return
-
-        repo = Repo.clone_from(GITHUB_REPO, REPO_PATH, branch="main")
-
-        for func in functions:
-            file_path = f"{REPO_PATH}/{func['name']}.deluge"
-            print(f"Writing function to: {file_path}")
-            with open(file_path, "w") as f:
-                f.write(func["script"])
-
-        print("Git status before commit:\n", repo.git.status())
-        repo.git.add(A=True)
-        repo.index.commit(f"Auto-update: {datetime.now()}")
-        origin = repo.remote(name="origin")
-        origin.push()
-        print("Push to GitHub completed.")
-
-    except Exception as e:
-        print("Error occurred:", str(e))
-
+# Main entry point to run the backup
 if __name__ == "__main__":
     backup_to_github()
