@@ -32,6 +32,15 @@ def fetch_zoho_functions(access_token):
 def backup_to_github():
     access_token = get_access_token()
     functions = fetch_zoho_functions(access_token)
+    print("Fetched functions:", functions)
+
+for func in functions:
+    file_path = f"{REPO_PATH}/{func['name']}.deluge"
+    print(f"Writing to {file_path}")
+    with open(file_path, "w") as f:
+        f.write(func["script"])
+
+print(repo.git.status())
     
     try:
         # Clone the GitHub repository
@@ -41,6 +50,7 @@ def backup_to_github():
         for func in functions:
             with open(f"{REPO_PATH}/{func['name']}.deluge", "w") as f:
                 f.write(func["script"])
+
         
         # Add changes, commit and push
         repo.git.add(A=True)
