@@ -2,15 +2,13 @@ import requests
 import os
 from git import Repo
 from datetime import datetime
-from git.exc import GitCommandError
 
 # Configuration
 CLIENT_ID = os.getenv("ZOHO_CLIENT_ID")
 CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
 REFRESH_TOKEN = os.getenv("ZOHO_REFRESH_TOKEN")
 REPO_PATH = "zoho_backup"
-GITHUB_TOKEN = "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"  # Your GitHub token here
-GITHUB_REPO = f"https://{GITHUB_TOKEN}@github.com/Sasi-Git-Creator/Zoho-CRM"
+GITHUB_REPO = "https://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@github.com/Sasi-Git-Creator/Zoho-CRM"
 
 def get_access_token():
     url = "https://accounts.zoho.in/oauth/v2/token"
@@ -21,48 +19,42 @@ def get_access_token():
         "grant_type": "refresh_token"
     }
     response = requests.post(url, data=data)
+    print("Access token response:", response.json())
     return response.json()["access_token"]
 
 def fetch_zoho_functions(access_token):
     url = "https://www.zohoapis.com/crm/v2/functions"
     headers = {"Authorization": f"Zoho-oauthtoken {access_token}"}
     response = requests.get(url, headers=headers)
+    print("Functions response:", response.json())
     return response.json().get("data", [])
 
 def backup_to_github():
-    access_token = get_access_token()
-    functions = fetch_zoho_functions(access_token)
-    print("Fetched functions:", functions)
-
-for func in functions:
-    file_path = f"{REPO_PATH}/{func['name']}.deluge"
-    print(f"Writing to {file_path}")
-    with open(file_path, "w") as f:
-        f.write(func["script"])
-
-print(repo.git.status())
-    
     try:
-        # Clone the GitHub repository
+        access_token = get_access_token()
+        functions = fetch_zoho_functions(access_token)
+
+        if not functions:
+            print("No functions found in Zoho CRM.")
+            return
+
         repo = Repo.clone_from(GITHUB_REPO, REPO_PATH, branch="main")
-        
-        # Write the Zoho functions to files
+
         for func in functions:
-            with open(f"{REPO_PATH}/{func['name']}.deluge", "w") as f:
+            file_path = f"{REPO_PATH}/{func['name']}.deluge"
+            print(f"Writing function to: {file_path}")
+            with open(file_path, "w") as f:
                 f.write(func["script"])
 
-        
-        # Add changes, commit and push
+        print("Git status before commit:\n", repo.git.status())
         repo.git.add(A=True)
         repo.index.commit(f"Auto-update: {datetime.now()}")
         origin = repo.remote(name="origin")
         origin.push()
-        print("Backup successfully pushed to GitHub!")
-    
-    except GitCommandError as e:
-        print(f"Git error occurred: {e}")
+        print("Push to GitHub completed.")
+
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print("Error occurred:", str(e))
 
 if __name__ == "__main__":
     backup_to_github()
