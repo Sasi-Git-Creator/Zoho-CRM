@@ -11,7 +11,7 @@ REPO_PATH = "zoho_backup"
 GITHUB_REPO = "https://github.com/Sasi-Git-Creator/Zoho-CRM.git"  # ← Change this!
 
 def get_access_token():
-    url = "https://accounts.zoho.com/oauth/v2/token"
+    url = "https://accounts.zoho.in/oauth/v2/token"
     data = {
         "refresh_token": REFRESH_TOKEN,
         "client_id": CLIENT_ID,
