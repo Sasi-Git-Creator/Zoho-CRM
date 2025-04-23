@@ -2,13 +2,16 @@ import requests
 import os
 from git import Repo
 from datetime import datetime
+from git.exc import GitCommandError
 
 # Configuration
 CLIENT_ID = os.getenv("ZOHO_CLIENT_ID")
 CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
 REFRESH_TOKEN = os.getenv("ZOHO_REFRESH_TOKEN")
 REPO_PATH = "zoho_backup"
-GITHUB_REPO = "https://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@github.com/Sasi-Git-Creator/Zoho-CRM"
+GITHUB_TOKEN = "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"  # Your GitHub token here
+GITHUB_REPO = f"https://{GITHUB_TOKEN}@github.com/Sasi-Git-Creator/Zoho-CRM"
+
 def get_access_token():
     url = "https://accounts.zoho.in/oauth/v2/token"
     data = {
@@ -30,16 +33,26 @@ def backup_to_github():
     access_token = get_access_token()
     functions = fetch_zoho_functions(access_token)
     
-    repo = Repo.clone_from(GITHUB_REPO, REPO_PATH, branch="main")
+    try:
+        # Clone the GitHub repository
+        repo = Repo.clone_from(GITHUB_REPO, REPO_PATH, branch="main")
+        
+        # Write the Zoho functions to files
+        for func in functions:
+            with open(f"{REPO_PATH}/{func['name']}.deluge", "w") as f:
+                f.write(func["script"])
+        
+        # Add changes, commit and push
+        repo.git.add(A=True)
+        repo.index.commit(f"Auto-update: {datetime.now()}")
+        origin = repo.remote(name="origin")
+        origin.push()
+        print("Backup successfully pushed to GitHub!")
     
-    for func in functions:
-        with open(f"{REPO_PATH}/{func['name']}.deluge", "w") as f:
-            f.write(func["script"])
-    
-    repo.git.add(A=True)
-    repo.index.commit(f"Auto-update: {datetime.now()}")
-    origin = repo.remote(name="origin")
-    origin.push()
+    except GitCommandError as e:
+        print(f"Git error occurred: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     backup_to_github()
