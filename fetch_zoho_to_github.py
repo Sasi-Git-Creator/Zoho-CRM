@@ -34,7 +34,7 @@ def fetch_zoho_functions(access_token):
     Placeholder: Zoho CRM does not offer a public API to fetch custom functions directly.
     This function should be replaced with a supported workaround if possible.
     """
-    print("⚠️ Warning: Zoho CRM does not support fetching custom functions via API.")
+    print("Warning: Zoho CRM does not support fetching custom functions via API.")
     return []
 
 def backup_to_github():
