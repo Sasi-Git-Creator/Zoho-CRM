@@ -1,0 +1,28 @@
+name: 🔁 Sync Zoho Creator to GitHub
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'     # Every 6 hours – change as needed
+  workflow_dispatch:          # Allows manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'   # or '3.x'
+
+    - name: Install dependencies
+      run: pip install requests GitPython
+
+    - name: Run backup script
+      env:
+        ZOHO_ACCESS_TOKEN: ${{ secrets.ZOHO_ACCESS_TOKEN }}
+        GTB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: python creator_to_git/fetch_zoho_to_github.py
