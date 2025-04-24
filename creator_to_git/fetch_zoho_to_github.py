@@ -5,18 +5,19 @@ from datetime import datetime
 
 # === 🔧 CONFIGURATION ===
 ZOHO_ACCESS_TOKEN = os.getenv("ZOHO_ACCESS_TOKEN")
-OWNER_NAME = "Sasi-Git-Creator"  # Your GitHub username
+ZOHO_OWNER_NAME = "excell"          # Zoho Creator owner
 APP_NAME = "crm-function-backup"
 REPORT_LINK_NAME = "All_Function_Backups"
 
 GITHUB_TOKEN = os.getenv("GTB_TOKEN")
+GITHUB_OWNER_NAME = "Sasi-Git-Creator"   # GitHub username
 GITHUB_REPO = "Zoho-CRM"
 LOCAL_CLONE_PATH = "/tmp/deluge_sync"
 
 # === 📡 FETCH DATA FROM CREATOR ===
 def fetch_deluge_functions():
     print("📡 Fetching Deluge functions from Zoho Creator...")
-    url = f"https://creator.zoho.in/api/v2/excell/crm-function-backup/report/All_Function_Backups"
+    url = f"https://creator.zoho.in/api/v2/{ZOHO_OWNER_NAME}/{APP_NAME}/report/{REPORT_LINK_NAME}"
     headers = {
         "Authorization": f"Zoho-oauthtoken {ZOHO_ACCESS_TOKEN}"
     }
@@ -37,7 +38,7 @@ def write_functions_to_files(data):
 
 # === 🧬 GIT COMMIT AND PUSH ===
 def push_to_github():
-    repo_url = f"https://{GITHUB_TOKEN}@github.com/{OWNER_NAME}/{GITHUB_REPO}.git"
+    repo_url = f"https://{GITHUB_TOKEN}@github.com/{GITHUB_OWNER_NAME}/{GITHUB_REPO}.git"
     if os.path.exists(os.path.join(LOCAL_CLONE_PATH, ".git")):
         repo = Repo(LOCAL_CLONE_PATH)
     else:
